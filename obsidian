@@ -13,7 +13,7 @@
 # directory together.
 VAULT_LIST="Petrichor"
 VAULT="$(echo -e $VAULT_LIST | fzf --multi --border --marker="~")"
-VAULT_PATH="/Users/bryanjenks/Documents/$VAULT/"
+VAULT_PATH="$HOME/Documents/$VAULT/"
 
 
 # If you have a nested vault inside the main vault When for
