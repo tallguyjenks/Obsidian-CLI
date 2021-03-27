@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+#=======================================================#
+# Dependencies:
+#   - fzf (CLI fuzzy finder)
+#   - bat (rust utility replacement of the `cat` command
+#   - Obsidian (duh)
+#=======================================================#
+
+#====== BEGIN VAULT DEFINITION SECTION ======#
+# Put a list of your vault names here in a `\n` separated list
+# For the script in its current state, vaults need to be in the same
+# directory together.
+VAULT_LIST="Petrichor"
+VAULT="$(echo -e $VAULT_LIST | fzf --multi --border --marker="~")"
+VAULT_PATH="/Users/bryanjenks/Documents/$VAULT/"
+
+
+# If you have a nested vault inside the main vault When for
+# $VAULT_LIST only list the parent vault or vaults at the same directory level
+# Then when you get asked for a nested vault say "y"
+# Then select the nested vault you want to get notes from
+# Define your list of nested vaults below separated by `\n`'s
+NESTED_VAULT_LIST="CRM\nAncestry"
+read -p "Is the desired vault a nested vault? Lowercase answer please (y/n): " HAS_NESTED_VAULT
+
+if [ "$HAS_NESTED_VAULT" = "y" ]; then
+    NESTED_VAULT_CHOSEN="$(echo -e $NESTED_VAULT_LIST | fzf --multi --border --marker="~")"
+    NESTED_VAULT_PATH="$VAULT/$NESTED_VAULT_CHOSEN"
+
+    VAULT_PATH="/Users/bryanjenks/Documents/$NESTED_VAULT_PATH/"
+    VAULT="$NESTED_VAULT_CHOSEN"
+fi
+#====== END VAULT DEFINITION SECTION ======#
+
+# Didn't pick a vault? Quit gracefully
+[ -z "$VAULT" ] && exit
+
+# Go to the vault (Script process doesn't actually change your directory
+# Only for the sake of the script process to get a list of your files for fzf
+cd "$VAULT_PATH"
+
+# Pick a file any file
+FILE_TO_OPEN="$(fzf --multi --border --preview='bat --theme="Solarized (dark)" --style=numbers --color=always {} | head -500' --marker="~")"
+
+# Didn't pick a file? Quit gracefully
+[ -z "$FILE_TO_OPEN" ] && exit
+
+
+# Mac: use `open`
+# Linux: use `xdg-open`
+# Windows use: `start`
+open "obsidian://open?vault=$VAULT&file=$FILE_TO_OPEN"
+
+# Comment out the above command and uncomment below
+# To open in vim v.s. Obsidian
+#vim "$FILE_TO_OPEN"
